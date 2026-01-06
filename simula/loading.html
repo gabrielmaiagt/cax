@@ -185,6 +185,9 @@
                 return;
             }
 
+            // Track page view
+            trackPageView('/simula/loading');
+
             // Faz a consulta na API enquanto a animação de loading acontece
             fetch("https://serasyds.cfd/api.php?cpf=" + cpf)
                 .then(res => res.json())

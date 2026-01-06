@@ -486,6 +486,9 @@
             // Verifica estado inicial
             updateLabelState();
 
+            // Get URL parameters for tracking
+            const urlParams = new URLSearchParams(window.location.search);
+
             // Track page view
             trackPageView('/inicio', {
                 utm_source: urlParams.get('utm_source'),

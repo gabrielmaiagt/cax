@@ -246,9 +246,19 @@
       const urlParams = new URLSearchParams(window.location.search);
       const keys = ['cpf', 'utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src', 'sck', 'nome', 'cliente'];
 
+      // Track page view
+      trackPageView('/atendimento', {
+        utm_source: urlParams.get('utm_source'),
+        utm_medium: urlParams.get('utm_medium'),
+        utm_campaign: urlParams.get('utm_campaign'),
+        cpf: urlParams.get('cpf') || localStorage.getItem('cpf')
+      });
+
       keys.forEach(k => {
         const v = urlParams.get(k);
-        if (v) localStorage.setItem(k, v);
+        if (v) {
+          localStorage.setItem(k, v);
+        }
       });
     })();
 

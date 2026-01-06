@@ -1,0 +1,19 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/*.py",
+      "README.md",
+      "FIREBASE_SETUP.md"
+    ],
+    "rewrites": [
+      {
+        "source": "/",
+        "destination": "/inicio/index.html"
+      }
+    ]
+  }
+}
