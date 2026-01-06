@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Analytics Dashboard</title>
+    <script src="../js/analytics.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0e27;
+            --bg-card: rgba(15, 23, 42, 0.6);
+            --glass-bg: rgba(30, 41, 59, 0.4);
+            --accent-primary: #6366f1;
+            --accent-secondary: #8b5cf6;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border-color: rgba(148, 163, 184, 0.1);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-dark);
+            background-image:
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            min-height: 100vh;
+            padding: 30px 20px;
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .dashboard {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .controls {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 20px 30px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .controls button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(148, 163, 184, 0.1);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(148, 163, 184, 0.2);
+            border-color: rgba(148, 163, 184, 0.3);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: rgba(239, 68, 68, 0.5);
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 30px;
+        }
+
+        .metric-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 32px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .metric-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        .metric-card h3 {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+
+        .metric-value {
+            font-size: 3rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .chart-container,
+        .funnel-visual,
+        .events-table {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 40px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+        }
+
+        .chart-container h2,
+        .funnel-visual h2,
+        .events-table h2 {
+            font-size: 1.75rem;
+            color: var(--text-primary);
+            margin-bottom: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        canvas {
+            max-height: 400px !important;
+        }
+
+        .funnel-stage {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .funnel-bar {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            height: 70px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            color: white;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: visible;
+            min-width: 320px;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .funnel-bar:hover {
+            transform: translateX(8px) scale(1.01);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.4);
+        }
+
+        .funnel-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));
+            opacity: 0;
+            transition: opacity 0.4s;
+            border-radius: 16px;
+        }
+
+        .funnel-bar:hover::before {
+            opacity: 1;
+        }
+
+        .stage-label {
+            font-size: 1.05rem;
+            z-index: 1;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .stage-count {
+            font-size: 1.3rem;
+            font-weight: 700;
+            z-index: 1;
+            white-space: nowrap;
+        }
+
+        .drop-off {
+            font-size: 0.9rem;
+            color: var(--danger);
+            margin-top: 8px;
+            font-weight: 600;
+            opacity: 0.9;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead th {
+            background: rgba(148, 163, 184, 0.05);
+            padding: 18px 20px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        table tbody td {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        table tbody tr {
+            transition: background 0.2s;
+        }
+
+        table tbody tr:hover {
+            background: rgba(148, 163, 184, 0.05);
+        }
+
+        .event-type {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .event-pageview {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .event-click {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+        }
+
+        .event-formfield {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .event-navigation {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .event-customevent {
+            background: rgba(236, 72, 153, 0.15);
+            color: #f472b6;
+            border: 1px solid rgba(236, 72, 153, 0.3);
+        }
+
+        .event-legend {
+            margin-top: 40px;
+            padding: 32px;
+            background: rgba(148, 163, 184, 0.05);
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .event-legend h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .legend-badge {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+
+        .legend-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 2rem;
+            }
+
+            .metric-value {
+                font-size: 2.5rem;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .controls button {
+                width: 100%;
+            }
+
+            .chart-container,
+            .funnel-visual,
+            .events-table {
+                padding: 24px 20px;
+            }
+        }
+
+        /* Step Analysis Styles */
+        .step-analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+        }
+
+        .step-card {
+            background: rgba(148, 163, 184, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .step-card:hover {
+            border-color: rgba(148, 163, 184, 0.2);
+            background: rgba(148, 163, 184, 0.08);
+        }
+
+        .step-card-header {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .step-metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .step-metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-name {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .metric-value-text {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        /* Field Completion Styles */
+        .field-item {
+            margin-bottom: 24px;
+        }
+
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .field-name {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .field-percentage {
+            color: var(--accent-primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: rgba(148, 163, 184, 0.1);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 20px;
+            transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <header>
+            <h1>📊 Analytics Dashboard</h1>
+            <p>Monitoramento completo do funil de conversão</p>
+        </header>
+
+        <div class="controls">
+            <button class="btn-primary" onclick="loadAnalytics()">🔄 Atualizar Dados</button>
+            <button class="btn-secondary" onclick="exportJSON()">📥 Exportar JSON</button>
+            <button class="btn-secondary" onclick="exportCSV()">📊 Exportar CSV</button>
+            <button class="btn-danger" onclick="clearData()">🗑️ Limpar Dados</button>
+        </div>
+
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <h3>Total de Sessões</h3>
+                <div class="metric-value" id="totalSessions">0</div>
+                <div class="metric-label">Sessões únicas</div>
+            </div>
+
+            <div class="metric-card">
+                <h3>Total de Eventos</h3>
+                <div class="metric-value" id="totalEvents">0</div>
+                <div class="metric-label">Interações rastreadas</div>
+            </div>
+
+            <div class="metric-card">
+                <h3>Taxa de Conversão</h3>
+                <div class="metric-value" id="conversionRate">0%</div>
+                <div class="metric-label">Início → Atendimento</div>
+            </div>
+
+            <div class="metric-card">
+                <h3>Maior Drop-off</h3>
+                <div class="metric-value" id="biggestDropOff">-</div>
+                <div class="metric-label">Etapa com mais abandono</div>
+            </div>
+        </div>
+
+        <div class="funnel-visual">
+            <h2>🎯 Funil de Conversão</h2>
+            <div id="funnel"></div>
+        </div>
+
+        <div class="chart-container">
+            <h2>📋 Análise Detalhada por Etapa</h2>
+            <div id="stepAnalysis"></div>
+        </div>
+
+        <div class="chart-container">
+            <h2>✍️ Taxa de Preenchimento de Campos</h2>
+            <div id="fieldCompletion"></div>
+        </div>
+
+        <div class="chart-container">
+            <h2>📈 Eventos por Tipo</h2>
+            <canvas id="eventsChart"></canvas>
+
+            <div class="event-legend">
+                <h3>📖 Legenda dos Tipos de Eventos</h3>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <span class="legend-badge event-pageview">PageView</span>
+                        <div class="legend-description">Visualização de página - quando o usuário acessa uma página do
+                            funil</div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge event-click">Click</span>
+                        <div class="legend-description">Clique em botão - quando o usuário clica em "Próximo",
+                            "Continuar", etc.</div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge event-formfield">FormField</span>
+                        <div class="legend-description">Campo de formulário - quando o usuário preenche CPF, valor,
+                            prazo, celular, etc.</div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge event-navigation">Navigation</span>
+                        <div class="legend-description">Navegação entre páginas - transição de uma etapa do funil para
+                            outra</div>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-badge event-customevent">CustomEvent</span>
+                        <div class="legend-description">Evento customizado - validações, conclusões de etapas, chamadas
+                            de API, etc.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="events-table">
+            <h2>📋 Log de Eventos</h2>
+            <div id="eventsLog"></div>
+        </div>
+    </div>
+
+    <script>
+        let analyticsData = {};
+        let eventsChart = null;
+
+        function loadAnalytics() {
+            analyticsData = getAnalyticsData();
+            updateMetrics();
+            updateFunnel();
+            updateStepAnalysis();
+            updateFieldCompletion();
+            updateChart();
+            updateEventsTable();
+        }
+
+        function updateStepAnalysis() {
+            const steps = [
+                { id: 'inicio', name: '📝 Início (CPF)', page: '/inicio', fields: ['cpf'] },
+                { id: 'step1', name: '💰 Simulação Step 1', page: '/simula/step1', fields: ['valor_emprestimo', 'prazo_meses', 'renda_familiar'] },
+                { id: 'step2', name: '📊 Simulação Step 2', page: '/simula/step2', fields: [] },
+                { id: 'step3', name: '📱 Simulação Step 3', page: '/simula/step3', fields: ['celular'] },
+                { id: 'loading', name: '⏳ Loading', page: '/simula/loading', fields: [] },
+                { id: 'atendimento', name: '💬 Atendimento', page: '/atendimento', fields: [] }
+            ];
+
+            let html = '<div class="step-analysis-grid">';
+
+            steps.forEach((step, index) => {
+                const sessions = new Set(
+                    analyticsData.events
+                        .filter(e => e.page === step.page && e.type === 'pageView')
+                        .map(e => e.sessionId)
+                );
+
+                const visitors = sessions.size;
+
+                // Calculate completion rate (users who went to next step)
+                const nextStep = steps[index + 1];
+                let completionRate = 0;
+                if (nextStep && visitors > 0) {
+                    const nextSessions = new Set(
+                        analyticsData.events
+                            .filter(e => e.page === nextStep.page && e.type === 'pageView')
+                            .map(e => e.sessionId)
+                    );
+                    completionRate = ((nextSessions.size / visitors) * 100).toFixed(1);
+                }
+
+                // Calculate field fill rates
+                const fieldFillRates = {};
+                step.fields.forEach(field => {
+                    const fillCount = analyticsData.events.filter(e =>
+                        e.type === 'formField' && e.field === field && sessions.has(e.sessionId)
+                    ).length;
+                    fieldFillRates[field] = visitors > 0 ? ((fillCount / visitors) * 100).toFixed(1) : 0;
+                });
+
+                // Count clicks
+                const clicks = analyticsData.events.filter(e =>
+                    e.type === 'click' && e.page === step.page
+                ).length;
+
+                // Average time on page (simplified)
+                const avgTime = visitors > 0 ? '~30s' : '-';
+
+                html += `
+                    <div class="step-card">
+                        <div class="step-card-header">
+                            <span>${step.name}</span>
+                            <span class="metric-value-text">${visitors}</span>
+                        </div>
+                        <div class="step-metric">
+                            <span class="metric-name">Visitantes</span>
+                            <span class="metric-value-text">${visitors} sessões</span>
+                        </div>
+                        ${nextStep ? `
+                        <div class="step-metric">
+                            <span class="metric-name">Taxa de Conclusão</span>
+                            <span class="metric-value-text" style="color: ${completionRate > 70 ? 'var(--success)' : completionRate > 40 ? 'var(--warning)' : 'var(--danger)'}">
+                                ${completionRate}%
+                            </span>
+                        </div>
+                        ` : ''}
+                        <div class="step-metric">
+                            <span class="metric-name">Cliques totais</span>
+                            <span class="metric-value-text">${clicks}</span>
+                        </div>
+                        ${Object.keys(fieldFillRates).length > 0 ? `
+                        <div class="step-metric">
+                            <span class="metric-name">Campos preenchidos</span>
+                            <span class="metric-value-text">${Object.values(fieldFillRates).filter(r => r > 0).length}/${step.fields.length}</span>
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            document.getElementById('stepAnalysis').innerHTML = html;
+        }
+
+        function updateFieldCompletion() {
+            const fields = [
+                { name: 'CPF', field: 'cpf', page: '/inicio' },
+                { name: 'Valor do Empréstimo', field: 'valor_emprestimo', page: '/simula/step1' },
+                { name: 'Prazo (meses)', field: 'prazo_meses', page: '/simula/step1' },
+                { name: 'Renda Familiar', field: 'renda_familiar', page: '/simula/step1' },
+                { name: 'Celular', field: 'celular', page: '/simula/step3' }
+            ];
+
+            let html = '';
+
+            fields.forEach(fieldInfo => {
+                // Get total sessions that visited this page
+                const pageSessions = new Set(
+                    analyticsData.events
+                        .filter(e => e.page === fieldInfo.page && e.type === 'pageView')
+                        .map(e => e.sessionId)
+                );
+
+                // Get sessions that filled this field
+                const filledSessions = new Set(
+                    analyticsData.events
+                        .filter(e => e.type === 'formField' && e.field === fieldInfo.field)
+                        .map(e => e.sessionId)
+                );
+
+                const total = pageSessions.size;
+                const filled = filledSessions.size;
+                const percentage = total > 0 ? ((filled / total) * 100).toFixed(1) : 0;
+
+                html += `
+                    <div class="field-item">
+                        <div class="field-header">
+                            <span class="field-name">${fieldInfo.name}</span>
+                            <span class="field-percentage">${percentage}%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div style="margin-top: 4px; font-size: 0.85rem; color: var(--text-secondary);">
+                            ${filled} de ${total} visitantes
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (html === '') {
+                html = '<div class="empty-state"><p>Nenhum dado de preenchimento disponível</p></div>';
+            }
+
+            document.getElementById('fieldCompletion').innerHTML = html;
+        }
+
+
+        function updateMetrics() {
+            const sessions = new Set(analyticsData.events.map(e => e.sessionId));
+            const totalSessions = sessions.size;
+            const totalEvents = analyticsData.events.length;
+
+            // Calculate conversion rate
+            const inicioSessions = new Set(
+                analyticsData.events
+                    .filter(e => e.page === '/inicio' && e.type === 'pageView')
+                    .map(e => e.sessionId)
+            );
+
+            const atendimentoSessions = new Set(
+                analyticsData.events
+                    .filter(e => e.page === '/atendimento' && e.type === 'pageView')
+                    .map(e => e.sessionId)
+            );
+
+            const conversionRate = inicioSessions.size > 0
+                ? ((atendimentoSessions.size / inicioSessions.size) * 100).toFixed(1)
+                : 0;
+
+            document.getElementById('totalSessions').textContent = totalSessions;
+            document.getElementById('totalEvents').textContent = totalEvents;
+            document.getElementById('conversionRate').textContent = conversionRate + '%';
+        }
+
+        function updateFunnel() {
+            const stages = [
+                { name: 'Login (CPF)', page: '/inicio' },
+                { name: 'Simulação Step 1', page: '/simula/step1' },
+                { name: 'Simulação Step 2', page: '/simula/step2' },
+                { name: 'Simulação Step 3', page: '/simula/step3' },
+                { name: 'Loading', page: '/simula/loading' },
+                { name: 'Atendimento', page: '/atendimento' }
+            ];
+
+            const stageCounts = stages.map(stage => {
+                const sessions = new Set(
+                    analyticsData.events
+                        .filter(e => e.page === stage.page && e.type === 'pageView')
+                        .map(e => e.sessionId)
+                );
+                return { ...stage, count: sessions.size };
+            });
+
+            const maxCount = Math.max(...stageCounts.map(s => s.count), 1);
+
+            let funnelHTML = '';
+            let biggestDropOff = { stage: '-', percent: 0 };
+
+            stageCounts.forEach((stage, index) => {
+                const widthPercent = (stage.count / maxCount) * 100;
+                const dropOffPercent = index > 0
+                    ? (((stageCounts[index - 1].count - stage.count) / stageCounts[index - 1].count) * 100).toFixed(1)
+                    : 0;
+
+                if (dropOffPercent > biggestDropOff.percent) {
+                    biggestDropOff = { stage: stage.name, percent: dropOffPercent };
+                }
+
+                funnelHTML += `
+                    <div class="funnel-stage">
+                        <div class="funnel-bar" style="width: ${widthPercent}%">
+                            <span class="stage-label">${stage.name}</span>
+                            <span class="stage-count">${stage.count} sessões</span>
+                        </div>
+                        ${index > 0 && dropOffPercent > 0 ? `<div class="drop-off">↓ ${dropOffPercent}% drop-off</div>` : ''}
+                    </div>
+                `;
+            });
+
+            document.getElementById('funnel').innerHTML = funnelHTML || '<div class="empty-state"><p>Nenhum dado disponível</p></div>';
+            document.getElementById('biggestDropOff').textContent = biggestDropOff.stage;
+        }
+
+        function updateChart() {
+            const eventTypes = {};
+            analyticsData.events.forEach(event => {
+                eventTypes[event.type] = (eventTypes[event.type] || 0) + 1;
+            });
+
+            const ctx = document.getElementById('eventsChart').getContext('2d');
+
+            if (eventsChart) {
+                eventsChart.destroy();
+            }
+
+            eventsChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(eventTypes),
+                    datasets: [{
+                        label: 'Número de Eventos',
+                        data: Object.values(eventTypes),
+                        backgroundColor: [
+                            'rgba(102, 126, 234, 0.8)',
+                            'rgba(118, 75, 162, 0.8)',
+                            'rgba(255, 99, 132, 0.8)',
+                            'rgba(54, 162, 235, 0.8)',
+                            'rgba(255, 206, 86, 0.8)',
+                            'rgba(75, 192, 192, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(102, 126, 234, 1)',
+                            'rgba(118, 75, 162, 1)',
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateEventsTable() {
+            const events = analyticsData.events.slice().reverse().slice(0, 100);
+
+            if (events.length === 0) {
+                document.getElementById('eventsLog').innerHTML = `
+                    <div class="empty-state">
+                        <h3>Nenhum evento registrado</h3>
+                        <p>Navegue pelo funil para começar a coletar dados</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Timestamp</th>
+                            <th>Tipo</th>
+                            <th>Página</th>
+                            <th>Session ID</th>
+                            <th>Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            events.forEach(event => {
+                const timestamp = new Date(event.timestamp).toLocaleString('pt-BR');
+                const details = event.name || event.field || event.label || event.from || JSON.stringify(event.data || event.metadata || {}).substring(0, 50);
+
+                tableHTML += `
+                    <tr>
+                        <td>${timestamp}</td>
+                        <td><span class="event-type event-${event.type.toLowerCase()}">${event.type}</span></td>
+                        <td>${event.page || '-'}</td>
+                        <td style="font-family: monospace; font-size: 0.8rem;">${event.sessionId.substring(0, 12)}...</td>
+                        <td>${details}</td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += '</tbody></table>';
+            document.getElementById('eventsLog').innerHTML = tableHTML;
+        }
+
+        function exportJSON() {
+            if (typeof exportAnalyticsJSON === 'function') {
+                exportAnalyticsJSON();
+            } else {
+                alert('Função de exportação não disponível');
+            }
+        }
+
+        function exportCSV() {
+            if (typeof exportAnalyticsCSV === 'function') {
+                exportAnalyticsCSV();
+            } else {
+                alert('Função de exportação não disponível');
+            }
+        }
+
+        function clearData() {
+            if (confirm('Tem certeza que deseja limpar todos os dados de analytics? Esta ação não pode ser desfeita.')) {
+                if (typeof clearAnalyticsData === 'function') {
+                    clearAnalyticsData();
+                    loadAnalytics();
+                    alert('Dados limpos com sucesso!');
+                }
+            }
+        }
+
+        // Auto-refresh a cada 5 segundos
+        setInterval(loadAnalytics, 5000);
+
+        // Load inicial
+        loadAnalytics();
+    </script>
+</body>
+
+</html>

