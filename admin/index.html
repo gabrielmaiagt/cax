@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin - Analytics Dashboard</title>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+
+    <!-- Analytics Library -->
     <script src="../js/analytics.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -545,8 +552,7 @@
 
         <div class="controls">
             <button class="btn-primary" onclick="loadAnalytics()">🔄 Atualizar Dados</button>
-            <button class="btn-secondary" onclick="exportJSON()">📥 Exportar JSON</button>
-            <button class="btn-secondary" onclick="exportCSV()">📊 Exportar CSV</button>
+            <button class="btn-secondary" onclick="window.location.href='/admin/logs'">📋 Ver Logs</button>
             <button class="btn-danger" onclick="clearData()">🗑️ Limpar Dados</button>
         </div>
 
@@ -555,12 +561,6 @@
                 <h3>Total de Sessões</h3>
                 <div class="metric-value" id="totalSessions">0</div>
                 <div class="metric-label">Sessões únicas</div>
-            </div>
-
-            <div class="metric-card">
-                <h3>Total de Eventos</h3>
-                <div class="metric-value" id="totalEvents">0</div>
-                <div class="metric-label">Interações rastreadas</div>
             </div>
 
             <div class="metric-card">
@@ -626,25 +626,19 @@
                 </div>
             </div>
         </div>
-
-        <div class="events-table">
-            <h2>📋 Log de Eventos</h2>
-            <div id="eventsLog"></div>
-        </div>
     </div>
 
     <script>
         let analyticsData = {};
         let eventsChart = null;
 
-        function loadAnalytics() {
-            analyticsData = getAnalyticsData();
+        async function loadAnalytics() {
+            analyticsData = await getAnalyticsData();
             updateMetrics();
             updateFunnel();
             updateStepAnalysis();
             updateFieldCompletion();
             updateChart();
-            updateEventsTable();
         }
 
         function updateStepAnalysis() {
@@ -790,7 +784,6 @@
         function updateMetrics() {
             const sessions = new Set(analyticsData.events.map(e => e.sessionId));
             const totalSessions = sessions.size;
-            const totalEvents = analyticsData.events.length;
 
             // Calculate conversion rate
             const inicioSessions = new Set(
@@ -810,7 +803,6 @@
                 : 0;
 
             document.getElementById('totalSessions').textContent = totalSessions;
-            document.getElementById('totalEvents').textContent = totalEvents;
             document.getElementById('conversionRate').textContent = conversionRate + '%';
         }
 
@@ -921,73 +913,15 @@
             });
         }
 
-        function updateEventsTable() {
-            const events = analyticsData.events.slice().reverse().slice(0, 100);
-
-            if (events.length === 0) {
-                document.getElementById('eventsLog').innerHTML = `
-                    <div class="empty-state">
-                        <h3>Nenhum evento registrado</h3>
-                        <p>Navegue pelo funil para começar a coletar dados</p>
-                    </div>
-                `;
-                return;
-            }
-
-            let tableHTML = `
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Timestamp</th>
-                            <th>Tipo</th>
-                            <th>Página</th>
-                            <th>Session ID</th>
-                            <th>Detalhes</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-            `;
-
-            events.forEach(event => {
-                const timestamp = new Date(event.timestamp).toLocaleString('pt-BR');
-                const details = event.name || event.field || event.label || event.from || JSON.stringify(event.data || event.metadata || {}).substring(0, 50);
-
-                tableHTML += `
-                    <tr>
-                        <td>${timestamp}</td>
-                        <td><span class="event-type event-${event.type.toLowerCase()}">${event.type}</span></td>
-                        <td>${event.page || '-'}</td>
-                        <td style="font-family: monospace; font-size: 0.8rem;">${event.sessionId.substring(0, 12)}...</td>
-                        <td>${details}</td>
-                    </tr>
-                `;
-            });
-
-            tableHTML += '</tbody></table>';
-            document.getElementById('eventsLog').innerHTML = tableHTML;
-        }
-
-        function exportJSON() {
-            if (typeof exportAnalyticsJSON === 'function') {
-                exportAnalyticsJSON();
-            } else {
-                alert('Função de exportação não disponível');
-            }
-        }
-
-        function exportCSV() {
-            if (typeof exportAnalyticsCSV === 'function') {
-                exportAnalyticsCSV();
-            } else {
-                alert('Função de exportação não disponível');
-            }
-        }
-
-        function clearData() {
+        async function clearData() {
             if (confirm('Tem certeza que deseja limpar todos os dados de analytics? Esta ação não pode ser desfeita.')) {
                 if (typeof clearAnalyticsData === 'function') {
-                    clearAnalyticsData();
-                    loadAnalytics();
+                    await clearAnalyticsData();
+                    await loadAnalytics();
+                    alert('Dados limpos com sucesso!');
+                } else {
+                    localStorage.removeItem('funnel_analytics');
+                    await loadAnalytics();
                     alert('Dados limpos com sucesso!');
                 }
             }
